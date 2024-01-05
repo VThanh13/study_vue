@@ -1,27 +1,24 @@
 <template>
-  <div>
+  <div class="screen">
     <h1>Game Page</h1>
     <h2>Point: {{ point }}</h2>
-    <div class="card">
-      <img
-        v-for="(pokemonData, index) in pokemon"
-        :key="index"
-        id="image"
-        :src="pokemonData.isChoose ? pokemonData.image : '/src/assets/images/pokemon/icon_back.png'"
-        alt="pokemon"
-        @click="choosePokemon(index)"
-      />
-    </div>
+    <img
+      v-for="(pokemonData, index) in pokemon"
+      :key="index"
+      id="image"
+      :src="pokemonData.isChoose ? pokemonData.image : '/src/assets/images/pokemon/icon_back.png'"
+      alt="pokemon"
+      :style="{ background: pokemonData.isChoose ? '#ee9d9d' : '#7e405f' }"
+      @click="choosePokemon(index)"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import router from '@/router'
 import { useRoute } from 'vue-router'
-import { ref, computed, onBeforeMount, watch } from 'vue'
+import { ref, onBeforeMount, watch } from 'vue'
 
 const route = useRoute()
-const type = computed(() => parseInt(route.query.level as string))
 
 const pokemon = ref<any[]>([])
 const selectedItem = ref<any[]>([])
@@ -30,7 +27,7 @@ const point = ref<number>(0)
 const item1 = ref<number>(-1)
 const item2 = ref<number>(-1)
 
-const result = watch(
+watch(
   () => point.value,
   (newVal, oldVal) => {
     if (point.value == pokemon.value.length / 2) {
@@ -112,7 +109,6 @@ const updatePokemon = (item1: number, item2: number) => {
     pokemon.value[item1].isChoose = false
     pokemon.value[item2].isChoose = false
     selectedItem.value = []
-
     console.log('Not matched')
   }
 }

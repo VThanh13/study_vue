@@ -28,7 +28,6 @@
 
 <script setup lang="ts">
 import router from '@/router'
-import { ref } from 'vue'
 
 const goToGamePage = (mode: number) => {
   console.log(mode)
