@@ -4,7 +4,7 @@
       :item="itemDetail"
       :isShow="isShowModal"
       @cancel="isShowModal = false"
-      @addCart="test"
+      @addCart="addToCart"
     ></AddProductModal>
   </Teleport>
   <link
@@ -40,7 +40,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import router from '@/router'
 import { ref, onBeforeMount } from 'vue'
 import db from '@/components/firebase/firebase'
@@ -56,7 +56,7 @@ import {
   updateDoc,
   limit
 } from 'firebase/firestore'
-import AddProductModal from '@/components/modal/AddProduct.vue'
+import { AddProductModal } from '@/components/modal/modal'
 
 const products = ref()
 const typeSort = ref()
@@ -64,9 +64,8 @@ const isShowModal = ref(false)
 const amount = ref()
 const itemDetail = ref()
 const myCart = ref()
-const empty = ref()
 
-const showModal = (item) => {
+const showModal = (item: object) => {
   itemDetail.value = item
   isShowModal.value = true
 }
@@ -75,7 +74,7 @@ onBeforeMount(async () => {
   await getAllProduct()
 })
 
-const goToDetailPage = (id) => {
+const goToDetailPage = (id: string) => {
   router.push({ name: 'shoppingDetail', query: { id: id } })
 }
 
@@ -83,7 +82,7 @@ const goToCart = () => {
   router.push({ name: 'shoppingCart' })
 }
 
-const test = async () => {
+const addToCart = async () => {
   isShowModal.value = false
 
   await getMyCart()
@@ -118,7 +117,7 @@ const getAllProduct = async () => {
   })
 }
 
-const sortProducts = async (type) => {
+const sortProducts = async (type: string) => {
   products.value = []
   typeSort.value = type.toUpperCase()
 
@@ -141,27 +140,22 @@ const sortProducts = async (type) => {
 
 const getMyCart = async () => {
   myCart.value = []
-  let listProduct = []
+  let listProduct: any[] = []
   const querySnapshot = await getDocs(query(collection(db, 'cart'), where('id', '==', '1')))
   querySnapshot.forEach((doc) => {
     const data = doc.data().products
     listProduct.push(data)
   })
 
-  if (listProduct.length === 0) {
-    empty.value = true
-  } else {
-    empty.value = false
-    for (let i = 0; i < listProduct[0].length; i++) {
-      let data = {
-        id: listProduct[0][i].id,
-        amount: listProduct[0][i].amount,
-        productName: listProduct[0][i].productName,
-        price: listProduct[0][i].price,
-        image: listProduct[0][i].image
-      }
-      myCart.value.push(data)
+  for (let i = 0; i < listProduct[0].length; i++) {
+    let data = {
+      id: listProduct[0][i].id,
+      amount: listProduct[0][i].amount,
+      productName: listProduct[0][i].productName,
+      price: listProduct[0][i].price,
+      image: listProduct[0][i].image
     }
+    myCart.value.push(data)
   }
 }
 </script>

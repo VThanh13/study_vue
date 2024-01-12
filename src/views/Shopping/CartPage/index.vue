@@ -1,7 +1,12 @@
 import type { Teleport } from 'vue';
 <template>
   <Teleport to="body">
-    <DeleteProductModal :isShow="isShowModal" @cancel="isShowModal = false" :item="itemDetail">
+    <DeleteProductModal
+      :isShow="isShowModal"
+      @cancel="isShowModal = false"
+      :item="itemDetail"
+      @deleteCart="deleteCart"
+    >
     </DeleteProductModal>
   </Teleport>
   <link
@@ -51,22 +56,22 @@ import type { Teleport } from 'vue';
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onBeforeMount } from 'vue'
 
 import db from '@/components/firebase/firebase'
-import DeleteProductModal from '@/components/modal/DeleteProduct.vue'
+import { DeleteProductModal } from '@/components/modal/modal'
 
-import { collection, doc, deleteDoc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import { collection, doc, getDocs, query, where, updateDoc } from 'firebase/firestore'
 const myCart = ref()
 
 const empty = ref()
 const totalPrice = ref(0)
 const isShowModal = ref(false)
-const amount = ref()
+
 const itemDetail = ref()
 
-const showModal = (item) => {
+const showModal = (item: object) => {
   itemDetail.value = item
   isShowModal.value = true
 }
@@ -78,7 +83,7 @@ onBeforeMount(async () => {
 const getMyCart = async () => {
   myCart.value = []
   totalPrice.value = 0
-  let listProduct = []
+  let listProduct: any[] = []
   const querySnapshot = await getDocs(query(collection(db, 'cart'), where('id', '==', '1')))
   querySnapshot.forEach((doc) => {
     const data = doc.data().products
@@ -96,12 +101,25 @@ const getMyCart = async () => {
         productName: listProduct[0][i].productName,
         price: listProduct[0][i].price,
         total: listProduct[0][i].price * listProduct[0][i].amount,
-        image: listProduct[0][i].image
+        image: listProduct[0][i].image as string
       }
       myCart.value.push(data)
       totalPrice.value += data.total
     }
   }
+}
+
+const deleteCart = async () => {
+  isShowModal.value = false
+  for (let i = 0; i < myCart.value.length; i++) {
+    if (myCart.value[i].id === itemDetail.value.id) {
+      myCart.value.splice(i, 1)
+    }
+  }
+  await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
+    products: myCart.value
+  })
+  await getMyCart()
 }
 </script>
 

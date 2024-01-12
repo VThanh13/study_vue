@@ -5,6 +5,7 @@
         :item="itemDetail"
         :isShow="isShowModal"
         @cancel="isShowModal = false"
+        @addCart="addToCart"
       ></AddProductModal>
     </Teleport>
     <link
@@ -30,7 +31,7 @@
       <p>Related Products</p>
       <div class="relatedProducts">
         <div class="item" v-for="(item, index) in relatedProducts" :key="index">
-          <img :src="item.image" alt="Product image" @click="goToDetailPage(item.id)" />
+          <img :src="item.image" alt="Product image" @click="goToDetailPage(item)" />
           <h3 id="name">{{ item.name }}</h3>
           <p id="price">${{ item.price }}</p>
           <i id="iconCart" class="fas fa-cart-plus" @click="showModal(item)"></i>
@@ -40,38 +41,33 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
-import router from '@/router'
 
 import db from '@/components/firebase/firebase'
-import AddProductModal from '@/components/modal/AddProduct.vue'
+import { AddProductModal } from '@/components/modal/modal'
 
-import {
-  addDoc,
-  collection,
-  doc,
-  deleteDoc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-  limit
-} from 'firebase/firestore'
+import { collection, doc, getDocs, query, where, limit, updateDoc } from 'firebase/firestore'
 
-const quantity = ref(1)
+const product = ref<any>({
+  id: '',
+  amount: 0,
 
-const product = ref()
+  image: '',
+  name: '',
+  price: 0
+})
 const itemDetail = ref()
+
+const myCart = ref()
 
 const relatedProducts = ref()
 
 const route = useRoute()
 const isShowModal = ref(false)
 
-const showModal = (item) => {
-  console.log(item)
+const showModal = (item: object) => {
   itemDetail.value = item
   isShowModal.value = true
 }
@@ -92,14 +88,20 @@ onBeforeMount(async () => {
     }
 
     product.value = data
-
-    console.log(product.value.image)
   })
   relatedProducts.value = await getRelatedProduct()
 })
 
 const getRelatedProduct = async () => {
-  let listRelatedProduct = []
+  let listRelatedProduct: {
+    id: any
+    amount: any
+    description: any
+    image: any
+    name: any
+    price: any
+    category: any
+  }[] = []
   const querySnapshot = await getDocs(query(collection(db, 'products'), limit(4)))
 
   querySnapshot.forEach((doc) => {
@@ -119,8 +121,45 @@ const getRelatedProduct = async () => {
   return listRelatedProduct
 }
 
-const goToDetailPage = (id) => {
-  router.push({ name: 'shoppingDetail', query: { id: id } })
+const goToDetailPage = (item: object) => {
+  product.value = item
+}
+
+const addToCart = async () => {
+  isShowModal.value = false
+  await getMyCart()
+  myCart.value.push({
+    id: itemDetail.value.id,
+    amount: 5,
+    productName: itemDetail.value.name,
+    price: itemDetail.value.price,
+    image: itemDetail.value.image
+  })
+  console.log(myCart.value)
+  await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
+    products: myCart.value
+  })
+}
+
+const getMyCart = async () => {
+  myCart.value = []
+  let listProduct: any[] = []
+  const querySnapshot = await getDocs(query(collection(db, 'cart'), where('id', '==', '1')))
+  querySnapshot.forEach((doc) => {
+    const data = doc.data().products
+    listProduct.push(data)
+  })
+
+  for (let i = 0; i < listProduct[0].length; i++) {
+    let data = {
+      id: listProduct[0][i].id,
+      amount: listProduct[0][i].amount,
+      productName: listProduct[0][i].productName,
+      price: listProduct[0][i].price,
+      image: listProduct[0][i].image
+    }
+    myCart.value.push(data)
+  }
 }
 </script>
 
