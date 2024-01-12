@@ -3,24 +3,18 @@
     <div class="screen">
       <h1>POKE MEMORIES</h1>
       <p>Select mode to start game</p>
-      <div class="modes">
-        <button @click="goToGamePage(4)">
-          <span>4x4</span>
-          <span>Easy</span>
-        </button>
-        <button @click="goToGamePage(6)">
-          <span>6x6</span>
-          <span>Normal</span>
-        </button>
-        <button @click="goToGamePage(8)">
-          <span>8x8</span>
-          <span>Hard</span>
-        </button>
-        <button @click="goToGamePage(10)">
-          <span>10x10</span>
-          <span>Super Hard</span>
-        </button>
-      </div>
+      <table class="table">
+        <tr>
+          <td v-for="(item, index) in selection" :key="index">
+            <div class="modes">
+              <button @click="goToGamePage(item.level)">
+                <span>{{ item.name }}</span>
+                <span>{{ item.des }}</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
     <p class="copyright">This is copyright</p>
   </div>
@@ -33,6 +27,33 @@ const goToGamePage = (mode: number) => {
   console.log(mode)
   router.push({ name: 'pokemonPlay', query: { level: mode } })
 }
+
+const selection = [
+  {
+    id: 1,
+    name: '4x4',
+    des: 'Easy',
+    level: 4
+  },
+  {
+    id: 2,
+    name: '6x6',
+    des: 'Normal',
+    level: 6
+  },
+  {
+    id: 3,
+    name: '8x8',
+    des: 'Hard',
+    level: 8
+  },
+  {
+    id: 4,
+    name: '10x10',
+    des: 'Super Hard',
+    level: 10
+  }
+]
 </script>
 
 <style scoped lang="scss">

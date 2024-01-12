@@ -9,6 +9,7 @@ import router from '@/router'
   <div class="home">
     <h1>Home Screen</h1>
     <button @click="router.push({ path: '/pokemon' })">Pokemon Game</button>
+    <button @click="router.push({ path: 'shopping/home' })">Shopping</button>
   </div>
 </template>
 

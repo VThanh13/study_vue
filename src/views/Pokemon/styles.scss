@@ -20,48 +20,56 @@
   flex-direction: column;
   background-color: #7e405f;
   color: #ee9d9d;
+
+  p {
+    font-size: 2rem;
+  }
 }
 
-.screen p {
-  font-size: 2rem;
+.select {
+  display: inline-block;
 }
 
+.table {
+  width: 70%;
+}
 //modes.scss
 .modes {
-  display: flex;
   margin-top: 2rem;
-}
-
-.modes button {
-  width: 150px;
-  height: 150px;
-  background: transparent;
-  box-shadow: none;
-  border: 1px solid #ee9d9d;
-  color: #ee9d9d;
   display: flex;
-  flex-direction: column;
-  border-radius: 1rem;
-  margin: 0 1rem;
-  align-items: center;
   justify-content: center;
-  cursor: pointer;
+  align-items: center;
+
+  button {
+    width: 150px;
+    height: 150px;
+    background: transparent;
+    box-shadow: none;
+    border: 1px solid #ee9d9d;
+    color: #ee9d9d;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1rem;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  button:hover {
+    color: #7e405f;
+    background-color: #ee9d9d;
+  }
+
+  button span:first-child {
+    font-size: 2rem;
+  }
+
+  button span:last-child {
+    font-size: 1.25rem;
+    margin-top: 0.5rem;
+  }
 }
 
-.modes button:hover {
-  color: #7e405f;
-  background-color: #ee9d9d;
-}
-
-.modes button span:first-child {
-  font-size: 2rem;
-}
-
-.modes button span:last-child {
-  display: block;
-  font-size: 1.25rem;
-  margin-top: 0.5rem;
-}
 //copyright.scss
 .copyright {
   position: fixed;

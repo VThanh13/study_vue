@@ -26,6 +26,21 @@ const routes = [
         path: '/pokemon/play',
         name: 'pokemonPlay',
         component: () => import('@/views/Pokemon/GamePage/index.vue')
+      },
+      {
+        path: '/shopping/home',
+        name: 'shoppingHome',
+        component: () => import('@/views/Shopping/HomePage/index.vue')
+      },
+      {
+        path: '/shopping/cart',
+        name: 'shoppingCart',
+        component: () => import('@/views/Shopping/CartPage/index.vue')
+      },
+      {
+        path: '/shopping/detail',
+        name: 'shoppingDetail',
+        component: () => import('@/views/Shopping/DetailPage/index.vue')
       }
     ]
   }
