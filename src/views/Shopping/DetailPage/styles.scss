@@ -1,11 +1,13 @@
 .product {
   display: flex;
   justify-content: start;
-  width: 80%;
+  width: 100%;
+  background-color: white;
+  margin-bottom: 50px;
 }
 
 .image {
-  width: 60%;
+  width: 50%;
   height: 600px;
   margin-right: 50px;
   cursor: pointer;
@@ -91,6 +93,7 @@
   border: #82ae46 3px solid;
   text-align: center;
   margin: 40px 50px;
+  background-color: white;
 
   img {
     width: 100%;
@@ -121,5 +124,53 @@
   #price {
     color: #82ae46;
     font-size: 20px;
+  }
+}
+
+.banner {
+  background-image: url(/src/assets/images/shopping/bg_3.jpg);
+  width: 100%;
+  height: 300px;
+  background-size: cover; /* Adjust to "contain" or specific values as needed */
+  background-position: center;
+
+  p {
+    text-align: center;
+    font-size: 80px;
+    padding-top: 70px;
+    color: orange;
+  }
+}
+
+.screen {
+  background-color: #e7e8ec;
+}
+
+.navbar {
+  height: 60px;
+  width: 100%;
+  background-color: #82ae46;
+  padding: 0 100px;
+
+  p {
+    color: white;
+    font-size: 30px;
+    margin: 0 20px;
+
+    &:hover {
+      cursor: pointer;
+      font-weight: bold;
+    }
+  }
+
+  #myCart {
+    color: white;
+    font-size: 25px;
+    margin: 0 40px;
+
+    &:hover {
+      cursor: pointer;
+      font-size: 30px;
+    }
   }
 }

@@ -3,8 +3,6 @@
     width: 100%;
     height: 500px;
   }
-
-  margin-bottom: 50px;
 }
 
 #home {
@@ -12,6 +10,7 @@
   margin: 0;
   width: 100%;
   height: 100%;
+  background-color: #e7e8ec;
 }
 
 ul {
@@ -24,20 +23,19 @@ ul {
 }
 
 .product-category {
-  p {
-    display: inline-block;
-    font-weight: 400;
-    font-size: 25px;
-    margin: 0 20px;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 50px;
 
-  #myCart {
-    color: white;
-    font-size: 20px;
+  p {
+    font-size: 30px;
     margin: 0 20px;
+    color: #82ae46;
 
     &:hover {
       cursor: pointer;
+      font-weight: bold;
     }
   }
 }
@@ -49,6 +47,7 @@ ul {
   text-align: center;
   margin: 20px 20px;
   border-radius: 10px;
+  background-color: white;
 
   img {
     width: 100%;
@@ -93,8 +92,6 @@ ul {
 .selections {
   background-color: #82ae46;
   align-items: center;
-
-  justify-content: space-between;
   display: flex;
 
   p {
@@ -105,6 +102,35 @@ ul {
 
     &:hover {
       cursor: pointer;
+    }
+  }
+}
+
+.navbar {
+  height: 60px;
+  width: 100%;
+  background-color: #82ae46;
+  padding: 0 100px;
+
+  p {
+    color: white;
+    font-size: 30px;
+    margin: 0 20px;
+
+    &:hover {
+      cursor: pointer;
+      font-weight: bold;
+    }
+  }
+
+  #myCart {
+    color: white;
+    font-size: 25px;
+    margin: 0 40px;
+
+    &:hover {
+      cursor: pointer;
+      font-size: 30px;
     }
   }
 }

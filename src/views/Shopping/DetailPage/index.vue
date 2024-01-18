@@ -7,11 +7,20 @@
         @cancel="isShowModal = false"
         @addCart="addToCart"
       ></AddProductModal>
+      <Loading :isLoading="isLoading"></Loading>
+      <Toast :message="message" :isShow="isShowToast" :type="type"></Toast>
     </Teleport>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
+    <div class="navbar">
+      <p @click="goToHomePage()">VEGETABLES</p>
+      <i id="myCart" class="fas fa-cart-plus" @click="goToCartPage()"></i>
+    </div>
+    <div class="banner">
+      <p>Product Detail</p>
+    </div>
     <div class="product">
       <div class="image">
         <img :src="product.image" alt="Product image" />
@@ -42,36 +51,56 @@
 </template>
 
 <script setup lang="ts">
+import db from '@/components/firebase/firebase'
+import router from '@/router'
+
 import { ref, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
-
-import db from '@/components/firebase/firebase'
-import { AddProductModal } from '@/components/modal/modal'
-
+import { AddProductModal, Loading, Toast } from '@/components/component'
 import { collection, doc, getDocs, query, where, limit, updateDoc } from 'firebase/firestore'
+import { useAuthStore } from '@/stores/auth'
 
-const product = ref<any>({
-  id: '',
-  amount: 0,
-
-  image: '',
-  name: '',
-  price: 0
-})
-const itemDetail = ref()
-
-const myCart = ref()
-
-const relatedProducts = ref()
-
-const route = useRoute()
-const isShowModal = ref(false)
-
-const showModal = (item: object) => {
-  itemDetail.value = item
-  isShowModal.value = true
+type productModel = {
+  id: string
+  amount: number
+  description: string
+  name: string
+  price: number
+  image: string
+  category: string
 }
 
+//VARIABLE
+const route = useRoute()
+const product = ref<productModel>({
+  id: '',
+  amount: 0,
+  description: '',
+  name: '',
+  price: 0,
+  image: '',
+  category: ''
+})
+const itemDetail = ref<productModel>({
+  id: '',
+  amount: 0,
+  description: '',
+  name: '',
+  price: 0,
+  image: '',
+  category: ''
+})
+const myCart = ref()
+const relatedProducts = ref<productModel[]>([])
+const message = ref<string>('')
+const isShowToast = ref<boolean>(false)
+const type = ref<string>()
+const isShowModal = ref<boolean>(false)
+const isLoading = ref<boolean>(false)
+const currentUser = ref<string>()
+const authStore = useAuthStore()
+
+//FUNCTION
 onBeforeMount(async () => {
   let id = route.query.id
   const querySnapshot = await getDocs(query(collection(db, 'products'), where('id', '==', id)))
@@ -92,20 +121,26 @@ onBeforeMount(async () => {
   relatedProducts.value = await getRelatedProduct()
 })
 
+const showToast = (typeToast: string, messageToast: string) => {
+  type.value = typeToast
+  message.value = messageToast
+  isShowToast.value = true
+  setTimeout(() => {
+    isShowToast.value = false
+  }, 2000)
+}
+
+const showModal = (item: productModel) => {
+  itemDetail.value = item
+  isShowModal.value = true
+}
+
 const getRelatedProduct = async () => {
-  let listRelatedProduct: {
-    id: any
-    amount: any
-    description: any
-    image: any
-    name: any
-    price: any
-    category: any
-  }[] = []
+  let listRelatedProduct = ref<productModel[]>([])
   const querySnapshot = await getDocs(query(collection(db, 'products'), limit(4)))
 
   querySnapshot.forEach((doc) => {
-    const data = {
+    const data = ref<productModel>({
       id: doc.data().id,
       amount: doc.data().amount,
       description: doc.data().description,
@@ -113,32 +148,54 @@ const getRelatedProduct = async () => {
       name: doc.data().name,
       price: doc.data().price,
       category: doc.data().category
-    }
+    })
 
-    listRelatedProduct.push(data)
+    listRelatedProduct.value.push(data.value)
   })
 
-  return listRelatedProduct
+  return listRelatedProduct.value
 }
 
-const goToDetailPage = (item: object) => {
+const goToDetailPage = (item: productModel) => {
   product.value = item
 }
 
+const goToHomePage = () => {
+  router.push({ name: 'shoppingHome' })
+}
+
+const goToCartPage = () => {
+  currentUser.value = authStore.getCurrentUser
+  if (authStore.currentUser === 'no user') {
+    router.push({ name: 'shoppingLogin' })
+  } else {
+    router.push({ name: 'shoppingCart' })
+  }
+}
+
 const addToCart = async () => {
-  isShowModal.value = false
-  await getMyCart()
-  myCart.value.push({
-    id: itemDetail.value.id,
-    amount: 5,
-    productName: itemDetail.value.name,
-    price: itemDetail.value.price,
-    image: itemDetail.value.image
-  })
-  console.log(myCart.value)
-  await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
-    products: myCart.value
-  })
+  try {
+    isShowModal.value = false
+    isLoading.value = true
+
+    await getMyCart()
+
+    myCart.value.push({
+      id: itemDetail.value.id,
+      amount: 5,
+      productName: itemDetail.value.name,
+      price: itemDetail.value.price,
+      image: itemDetail.value.image
+    })
+    await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
+      products: myCart.value
+    })
+    isLoading.value = false
+    showToast('success', 'Add to cart successfully')
+  } catch (error) {
+    console.log(error)
+    showToast('error', 'Add to cart failed')
+  }
 }
 
 const getMyCart = async () => {

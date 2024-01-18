@@ -41,6 +41,11 @@ const routes = [
         path: '/shopping/detail',
         name: 'shoppingDetail',
         component: () => import('@/views/Shopping/DetailPage/index.vue')
+      },
+      {
+        path: '/shopping/login',
+        name: 'shoppingLogin',
+        component: () => import('@/views/Shopping/Login/index.vue')
       }
     ]
   }
@@ -56,7 +61,7 @@ const router = createRouter({
 })
 
 /**
- * Handle check authencation
+ * Handle check authentication
  */
 checkAuth(router)
 

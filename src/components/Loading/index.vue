@@ -16,6 +16,7 @@ defineProps({
 <style scoped lang="scss">
 /* Just demo. Custom your style loading */
 .base-loading {
+  z-index: 9999;
   position: fixed;
   top: 0;
   left: 0;
