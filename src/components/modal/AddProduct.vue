@@ -5,7 +5,14 @@
     <div class="product">
       <p class="name">{{ item.name }}</p>
       <p class="price">${{ item.price }}</p>
-      <input type="number" placeholder="number of items.." />
+      <input
+        type="number"
+        placeholder="number of items.."
+        min="1"
+        :value="numberItem"
+        @input="$emit('update:numberItem', $event.target.value)"
+        v-bind="$attrs"
+      />
 
       <div class="action">
         <button class="btn-cancel" @click="$emit('cancel')">Cancel</button>
@@ -16,12 +23,18 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, ref, watch } from 'vue'
 
 const prop = defineProps({
   item: Object,
   isShow: Boolean
 })
+
+watch(prop, () => {
+  numberItem.value = 1
+})
+
+const numberItem = ref(1)
 </script>
 
 <style scoped lang="scss">
@@ -41,13 +54,13 @@ const prop = defineProps({
   align-items: center;
 
   img {
-    width: 40%;
-    height: 70%;
+    width: 30%;
+    height: 60%;
   }
 
   .product {
-    width: 40%;
-    height: 70%;
+    width: 30%;
+    height: 60%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -80,7 +93,7 @@ const prop = defineProps({
       justify-content: space-between;
 
       button {
-        width: 40%;
+        width: 45%;
         height: 3rem;
         border: 1px solid black;
         border-radius: 5px;

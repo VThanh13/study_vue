@@ -148,7 +148,7 @@ const loginUser = async (user: User) => {
       })
   } catch (error) {
     console.log(error)
-    showToast('error', 'Login failed')
+    showToast('error', 'Email or password is incorrect')
   }
 }
 

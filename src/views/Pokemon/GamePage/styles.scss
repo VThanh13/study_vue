@@ -55,3 +55,17 @@ div {
   justify-content: center;
   text-align: center;
 }
+
+.button {
+  margin-top: 200px;
+  width: 250px;
+  height: 100px;
+  border-radius: 1rem;
+  background-color: #ee9d9d;
+  border: yellow 4px solid;
+  font-size: 30px;
+
+  &:hover {
+    background-color: #f7d6d6;
+  }
+}

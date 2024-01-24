@@ -1,4 +1,8 @@
 <template>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+  />
   <div class="screen">
     <div class="game" v-if="!showResult">
       <img
@@ -10,7 +14,9 @@
         :style="{
           background: pokemonData.isChoose ? '#ee9d9d' : '#7e405f',
           width: 80 / level + '%',
-          height: 80 / level + '%'
+          height: 80 / level + '%',
+          maxHeight: 80 / level + '%',
+          maxWidth: 80 / level + '%'
         }"
         @click="choosePokemon(index)"
       />
@@ -19,6 +25,7 @@
       <h1>Congratulations!</h1>
       <h2>You win!</h2>
       <h2>Point: {{ point }}</h2>
+      <button class="button" @click="playAgain()">Play Again <i class="fas fa-history"></i></button>
     </div>
   </div>
 </template>
@@ -26,6 +33,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ref, onBeforeMount, watch } from 'vue'
+import router from '@/router'
 
 const route = useRoute()
 
@@ -76,7 +84,6 @@ const getPokemonImage = (totalItem: number) => {
 
 const choosePokemon = (index: number) => {
   if (selectedItem.value.length >= 2) {
-    console.log('You can only choose 2 pokemon')
     return
   }
 
@@ -86,10 +93,8 @@ const choosePokemon = (index: number) => {
     // Save index of chosen pokemon to check match
     if (item1.value === -1) {
       item1.value = index
-      console.log('item1: ' + item1.value)
     } else {
       item2.value = index
-      console.log('item2: ' + item2.value)
     }
 
     // delay to choose pokemon but don't have animation
@@ -111,18 +116,18 @@ const choosePokemon = (index: number) => {
 }
 
 const updatePokemon = (item1: number, item2: number) => {
-  console.log(item1, item2)
-
   if (pokemon.value[item1].image === pokemon.value[item2].image) {
     selectedItem.value = []
     point.value += 1
-    console.log('Matched')
   } else {
     pokemon.value[item1].isChoose = false
     pokemon.value[item2].isChoose = false
     selectedItem.value = []
-    console.log('Not matched')
   }
+}
+
+const playAgain = () => {
+  router.back()
 }
 </script>
 

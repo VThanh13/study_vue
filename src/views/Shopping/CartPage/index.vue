@@ -10,6 +10,12 @@
     >
     </DeleteProductModal>
     <Toast :message="message" :isShow="isShowToast" :type="type"></Toast>
+    <ConfirmPay
+      :isShow="isShowConfirmPay"
+      :total="totalPrice"
+      @cancel="isShowConfirmPay = false"
+      @payCart="payCart"
+    ></ConfirmPay>
   </Teleport>
   <link
     rel="stylesheet"
@@ -53,8 +59,14 @@
               </td>
             </tr>
           </table>
-          <p>Total</p>
-          <p>${{ totalPrice }}</p>
+          <div class="pay">
+            <div>
+              <p>Total</p>
+              <p>${{ totalPrice }}</p>
+            </div>
+
+            <button @click="showConfirmPay()">Pay <i class="fas fa-cash-register"></i></button>
+          </div>
         </div>
       </div>
     </div>
@@ -66,7 +78,7 @@ import { ref, onBeforeMount } from 'vue'
 import db from '@/components/firebase/firebase'
 import router from '@/router'
 
-import { DeleteProductModal, Loading, Toast } from '@/components/component'
+import { DeleteProductModal, Loading, Toast, ConfirmPay } from '@/components/component'
 import { collection, doc, getDocs, query, where, updateDoc } from 'firebase/firestore'
 
 type cartModel = {
@@ -87,6 +99,7 @@ const itemDetail = ref()
 const isLoading = ref<boolean>(false)
 const message = ref<string>('')
 const isShowToast = ref<boolean>(false)
+const isShowConfirmPay = ref<boolean>(false)
 const type = ref<string>()
 
 // FUNCTION
@@ -98,6 +111,10 @@ onBeforeMount(async () => {
 const showModal = (item: cartModel) => {
   itemDetail.value = item
   isShowModal.value = true
+}
+
+const showConfirmPay = () => {
+  isShowConfirmPay.value = true
 }
 
 const showToast = (typeToast: string, messageToast: string) => {
@@ -159,6 +176,24 @@ const deleteCart = async () => {
   }
   isShowModal.value = false
   checkEmptyCart()
+}
+
+const payCart = async () => {
+  isShowConfirmPay.value = false
+  isLoading.value = true
+  try {
+    myCart.value = []
+    await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
+      products: myCart.value
+    }).then(() => {
+      isLoading.value = false
+      showToast('success', 'Pay successfully')
+    })
+  } catch (error) {
+    console.log(error)
+    showToast('error', 'Pay failed')
+  }
+  empty.value = true
 }
 
 const goToHomePage = () => {

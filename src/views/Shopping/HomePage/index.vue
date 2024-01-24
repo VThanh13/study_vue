@@ -7,8 +7,14 @@
       :isShow="isShowModal"
       @cancel="isShowModal = false"
       @addCart="addToCart"
+      v-model="numberItem"
     ></AddProductModal>
     <Toast :message="message" :isShow="isShowToast" :type="type"></Toast>
+    <SearchProduct
+      :isShow="isShowSearch"
+      :listProduct="products"
+      @cancel="isShowSearch = false"
+    ></SearchProduct>
   </Teleport>
 
   <link
@@ -19,7 +25,10 @@
   <div id="home">
     <div class="navbar">
       <p>VEGETABLES</p>
-      <i id="myCart" class="fas fa-cart-plus" @click="goToCart()"></i>
+      <div>
+        <i id="search" class="fas fa-search" @click="showSearch()"></i>
+        <i id="myCart" class="fas fa-cart-plus" @click="goToCart()"></i>
+      </div>
     </div>
     <div class="banner">
       <img src="/src/assets/images/shopping/bg_1.jpg" alt="product image" />
@@ -51,7 +60,7 @@ import db from '@/components/firebase/firebase'
 
 import { ref, onBeforeMount } from 'vue'
 import { collection, doc, getDocs, query, where, updateDoc } from 'firebase/firestore'
-import { Loading, AddProductModal, Toast } from '@/components/component'
+import { Loading, AddProductModal, Toast, SearchProduct } from '@/components/component'
 import { useAuthStore } from '@/stores/auth'
 
 //VARIABLE
@@ -79,10 +88,13 @@ const itemDetail = ref<productModel>({
   category: ''
 })
 const myCart = ref()
+const numberItem = ref(0)
 const message = ref<string>('')
 const isShowToast = ref<boolean>(false)
 const type = ref<string>()
 const currentUser = ref<string>()
+const isItemExist = ref<boolean>(false)
+const isShowSearch = ref<boolean>(false)
 const authStore = useAuthStore()
 
 //FUNCTION
@@ -100,8 +112,17 @@ const showToast = (typeToast: string, messageToast: string) => {
 }
 
 const showModal = (item: productModel) => {
-  itemDetail.value = item
-  isShowModal.value = true
+  currentUser.value = authStore.getCurrentUser
+  if (currentUser.value === 'no user') {
+    router.push({ name: 'shoppingLogin' })
+  } else {
+    itemDetail.value = item
+    isShowModal.value = true
+  }
+}
+
+const showSearch = () => {
+  isShowSearch.value = true
 }
 
 const goToDetailPage = (id: string) => {
@@ -118,25 +139,36 @@ const goToCart = () => {
 }
 
 const addToCart = async () => {
+  console.log(numberItem.value)
   try {
     isShowModal.value = false
     isLoading.value = true
 
-    await getMyCart()
-    myCart.value.push({
-      id: itemDetail.value.id,
-      amount: 5,
-      productName: itemDetail.value.name,
-      price: itemDetail.value.price,
-      image: itemDetail.value.image
+    await getMyCart().then(async () => {
+      for (let i = 0; i < myCart.value.length; i++) {
+        if (myCart.value[i].id === itemDetail.value.id) {
+          myCart.value[i].amount += 5
+          isItemExist.value = true
+          break
+        } else {
+          isItemExist.value = false
+        }
+      }
+      if (isItemExist.value === false) {
+        myCart.value.push({
+          id: itemDetail.value.id,
+          amount: 5,
+          productName: itemDetail.value.name,
+          price: itemDetail.value.price,
+          image: itemDetail.value.image
+        })
+      }
+      await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
+        products: myCart.value
+      })
+      isLoading.value = false
+      showToast('success', 'Add to cart successfully')
     })
-    console.log(myCart.value)
-    await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
-      products: myCart.value
-    })
-    isLoading.value = false
-
-    showToast('success', 'Add to cart successfully')
   } catch (error) {
     console.log(error)
     showToast('error', 'Add to cart failed')

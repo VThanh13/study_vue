@@ -5,7 +5,7 @@
         :item="itemDetail"
         :isShow="isShowModal"
         @cancel="isShowModal = false"
-        @addCart="addToCart"
+        @addCart="addToCart, $emit('numberItem')"
       ></AddProductModal>
       <Loading :isLoading="isLoading"></Loading>
       <Toast :message="message" :isShow="isShowToast" :type="type"></Toast>
@@ -98,6 +98,7 @@ const type = ref<string>()
 const isShowModal = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
 const currentUser = ref<string>()
+const isItemExist = ref<boolean>(false)
 const authStore = useAuthStore()
 
 //FUNCTION
@@ -131,8 +132,13 @@ const showToast = (typeToast: string, messageToast: string) => {
 }
 
 const showModal = (item: productModel) => {
-  itemDetail.value = item
-  isShowModal.value = true
+  currentUser.value = authStore.getCurrentUser
+  if (currentUser.value === 'no user') {
+    router.push({ name: 'shoppingLogin' })
+  } else {
+    itemDetail.value = item
+    isShowModal.value = true
+  }
 }
 
 const getRelatedProduct = async () => {
@@ -178,20 +184,31 @@ const addToCart = async () => {
     isShowModal.value = false
     isLoading.value = true
 
-    await getMyCart()
-
-    myCart.value.push({
-      id: itemDetail.value.id,
-      amount: 5,
-      productName: itemDetail.value.name,
-      price: itemDetail.value.price,
-      image: itemDetail.value.image
+    await getMyCart().then(async () => {
+      for (let i = 0; i < myCart.value.length; i++) {
+        if (myCart.value[i].id === itemDetail.value.id) {
+          myCart.value[i].amount += 5
+          isItemExist.value = true
+          break
+        } else {
+          isItemExist.value = false
+        }
+      }
+      if (isItemExist.value === false) {
+        myCart.value.push({
+          id: itemDetail.value.id,
+          amount: 5,
+          productName: itemDetail.value.name,
+          price: itemDetail.value.price,
+          image: itemDetail.value.image
+        })
+      }
+      await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
+        products: myCart.value
+      })
+      isLoading.value = false
+      showToast('success', 'Add to cart successfully')
     })
-    await updateDoc(doc(db, 'cart', 'PQOj2DIgq8GZiPGJzART'), {
-      products: myCart.value
-    })
-    isLoading.value = false
-    showToast('success', 'Add to cart successfully')
   } catch (error) {
     console.log(error)
     showToast('error', 'Add to cart failed')
